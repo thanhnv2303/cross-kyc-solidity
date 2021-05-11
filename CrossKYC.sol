@@ -1,11 +1,16 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
+import  './VerifySignatureCrossKYC.sol'
+import './Addresser.sol' 
 
 contract CrossKYC {
     struct Account {
         int64 chainId;
         bytes publicKey;
     }
+
+    Addresser public addresser;
+    VerifySignatureCrossKYC public verifySignatureCrossKYC;
 
     mapping(int32 => Account) accounts;
     int32 num = 0;
@@ -16,6 +21,9 @@ contract CrossKYC {
         (bool success, bytes memory returnData) =
             address(proxyCossKYC).call(payload);
         require(success);
+
+        addresser = new Addresser();
+        verifySignatureCrossKYC = new VerifySignatureCrossKYC()
     }
 
     function sameAs(
@@ -142,7 +150,9 @@ contract CrossKYC {
         string memory signature,
         bytes32 message
     ) public pure returns (bool) {
-        return true;
+
+        address verifyAddress = adresser.getVerifyAddress(publicKey)
+        return verifySignatureCrossKYC.verify(verifyAddress, message,signature);
     }
 
     /* bytes to string */
